@@ -1,5 +1,4 @@
 import socket
-import threading
 from threading import Thread
 from enum import Enum
 
@@ -13,19 +12,21 @@ class cmd:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-class talkiServer():
-    clienthandler=[]
+
+class TalkiServer:
+    clienthandler = []
+
     def __init__(self):
         self.ip = '0.0.0.0'
         self.port = 7777
 
     def Start(self,ip,port):
-        if self.startListen(ip,port):
+        if self.startlisten(ip, port):
             self.startRecieve()
         else:
             return
 
-    def startListen(self,ip,port):
+    def startListen(self, ip, port):
         global server
         try:
             server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -87,11 +88,6 @@ class service(Thread):
             print(cmd.GREEN+'[*]'+string+cmd.ENDC)
         elif state == 'warn':
             print(cmd.WARNING+'[*]'+string+cmd.ENDC)
-
-
-
-
-
 
 class client:
     class status(Enum):
