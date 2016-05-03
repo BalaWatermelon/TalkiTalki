@@ -1,5 +1,6 @@
 import socket
 import threading
+from threading import Thread
 from enum import Enum
 
 class cmd:
@@ -13,7 +14,6 @@ class cmd:
     UNDERLINE = '\033[4m'
 
 class talkiServer():
-    server = ''
     clienthandler=[]
     def __init__(self):
         self.ip = '0.0.0.0'
@@ -42,21 +42,9 @@ class talkiServer():
         global clienthandler
         while True:
             client,addr = server.accept()
-            c = threading.Thread(target=clientservice,args=(client))
+            c = service(client)
             c.start()
             clienthandler.append(c)
-
-    def clientservice(self,socket):
-        client = client()
-        client.socket = socket
-        while client.login is not True:
-            self.requestLogin(client)
-
-        client.send('Login success')
-
-    def requestLogin(self,client):
-        #TODO:request client to login through socket
-
 
     def sprint(self,state,string):
         if state == 'err':
@@ -66,11 +54,49 @@ class talkiServer():
         elif state == 'warn':
             print(cmd.WARNING+'[*]'+string+cmd.ENDC)
 
-class status(Enum):
-    available = 1
-    invisible = 2
+class service(Thread):
+
+    def __init__(self, sock):
+        Thread.__init__(self)
+        self.socket = sock
+        self.client = client()
+
+    def run(self,socket):
+        client.socket = socket
+        while client.login is not True:
+            self.requestLogin(client)
+
+        client.send('Login success')
+        while True:
+            command = client.recieve()
+            print ('[*]>>'+command+' from '+client.name)
+
+
+    def requestLogin(self,client):
+        #TODO:request client to login through socket
+        client.send(b'UserName: ')
+        ID = client.recieve()
+        client.send(b'Password: ')
+        PW = client.recieve()
+        self.setName(userID)
+
+    def sprint(self,state,string):
+        if state == 'err':
+            print(cmd.FAIL+'[*]>>Fatal: '+string+cmd.ENDC)
+        elif state == 'suc':
+            print(cmd.GREEN+'[*]'+string+cmd.ENDC)
+        elif state == 'warn':
+            print(cmd.WARNING+'[*]'+string+cmd.ENDC)
+
+
+
+
+
 
 class client:
+    class status(Enum):
+        available = 1
+        invisible = 2
     name = ''
     ip = ''
     login = False
@@ -82,3 +108,7 @@ class client:
 
     def send(self, string):
         self.socket.send(string.encode())
+
+    def recieve(self):
+        message = self.socket.recieve(1024)
+        return message
