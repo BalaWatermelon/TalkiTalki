@@ -1,1 +1,1 @@
-def client:
+class client:
