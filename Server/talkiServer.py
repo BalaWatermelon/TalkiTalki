@@ -1,5 +1,6 @@
 import socket
 import threading
+from enum import Enum
 
 class cmd:
     HEADER = '\033[95m'
@@ -13,6 +14,7 @@ class cmd:
 
 class talkiServer():
     server = ''
+    clienthandler=[]
     def __init__(self):
         self.ip = '0.0.0.0'
         self.port = 7777
@@ -37,8 +39,24 @@ class talkiServer():
 
     def startRecieve(self):
         global server
+        global clienthandler
         while True:
             client,addr = server.accept()
+            c = threading.Thread(target=clientservice,args=(client))
+            c.start()
+            clienthandler.append(c)
+
+    def clientservice(self,socket):
+        client = client()
+        client.socket = socket
+        while client.login is not True:
+            self.requestLogin(client)
+
+        client.send('Login success')
+
+    def requestLogin(self,client):
+        #TODO:request client to login through socket
+
 
     def sprint(self,state,string):
         if state == 'err':
@@ -47,3 +65,20 @@ class talkiServer():
             print(cmd.GREEN+'[*]'+string+cmd.ENDC)
         elif state == 'warn':
             print(cmd.WARNING+'[*]'+string+cmd.ENDC)
+
+class status(Enum):
+    available = 1
+    invisible = 2
+
+class client:
+    name = ''
+    ip = ''
+    login = False
+    status = status.available
+    socket=''
+    sessions = []
+    def __init__(self,sock):
+        self.socket = sock
+
+    def send(self, string):
+        self.socket.send(string.encode())
