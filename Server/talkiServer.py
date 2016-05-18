@@ -88,11 +88,6 @@ class service(Thread):
         elif state == 'warn':
             print(cmd.WARNING+'[*]'+string+cmd.ENDC)
 
-
-
-
-
-
 class client:
     class status(Enum):
         available = 1
